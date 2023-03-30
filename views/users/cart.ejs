@@ -1,0 +1,314 @@
+<% if(typeof userData =="undefined"){%>        
+    <%-include("../layouts/userheaderlogout")%>
+  <%}else{%>
+    <%-include('../layouts/userheader')%>
+  <%}%>
+  <style>
+    .apply-coupon {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+  padding: 10px 20px;
+  border-radius: 4px;
+
+}
+
+  </style>
+  
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="header__logo">
+                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li><a href="/home">Home</a></li>
+                            <li class="active"><a href="/shop">Shop</a></li>
+                           
+                            <li><a href="./blog.html">Blog</a></li>
+                            <li><a href="./contact.html">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        <ul>
+                            <li><a href="/wishlist"><i class="fa fa-heart"></i></a></li>
+                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span><%=length %></span></a></li>
+                        </ul>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+
+    <!-- Hero Section Begin -->
+    
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="breadcrumb__text">
+                        <h2>Shopping Cart</h2>
+                        <div class="breadcrumb__option">
+                            <a href="/home">Home</a>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Shoping Cart Section Begin -->
+    <section class="h-100 h-custom" style="background-color: #ffffff;">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12">
+              <br><br><br>
+              <div class="card card-registration card-registration-2" style="border-radius: 15px;">
+                <div class="card-body p-0">
+                  <div class="row g-0">
+                    <div class="col-lg-8">
+                      <div class="p-5">
+      
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                          <h1 class="fw-bold mb-0 text-black">Shopping Cart</h1>
+                          <h6 class="mb-0 text-muted"><%= length %> items</h6>
+                        </div>
+                        <hr class="my-4">
+                        <% if (length) { %>
+                        <% cartProducts.forEach(function(product,index) { %>
+                        <form action="/checkoutpage" method="post">
+                          <div class="row mb-4 d-flex justify-content-between align-items-center ">
+                            <div class="col-md-2 col-lg-2 col-xl-2">
+                              <img src="/images/<%= product.img1[0] %>" class="img-fluid rounded-3" style="width: auto;height: auto;" >
+                            </div>
+                            <div class="col-md-3 col-lg-3 col-xl-3">
+                              <!-- <h6 class="text-muted"><%= product.category %> </h6>  -->
+                              <h6 class="text-black mb-0"><%= product.productName %> </h6>
+                            </div>
+      
+                            <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                              <!-- Minus button  -->
+                              <a class="btn btn-primary text-white"
+                                onclick="this.parentNode.querySelector('input[type=number]').stepDown();validateData('<%= product._id %>') , updatequantity('<%= product._id %>',-1)">
+                                &nbsp;-&nbsp;</a>&nbsp;&nbsp;
+      
+                              <div class="form-outline">
+                                <input style="width: 5rem;" class="form-control" type="number" id="<%= product._id %>" min="1"
+    name="quantity" pattern="<%= product._id %>" max="<%= product.stock %>" value="<%= product.quantity %>"
+    onchange="validateData('<%=product._id %>')" readonly />
+
+                                <span id="price_text_<%= product._id %>" hidden=""><%= product.price %> </span>
+                              </div>
+                              &nbsp;&nbsp;
+                               <!-- plus button  -->
+                              <a class="btn btn-primary text-white"
+                                onclick="this.parentNode.querySelector('input[type=number]').stepUp();validateData('<%= product._id %>'), updatequantity('<%= product._id %>',1)">
+                                &nbsp;+&nbsp; </a>
+                              <div class="form-outline">
+                                <div class="fs-lg text-accent pt-2 price">
+                                  <div id="get">
+                                    <p id="actual_price_<%= product._id %>" hidden=""><%= product.price %></p>
+                                   
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+      
+                              <h6 class="mb-0">&nbsp;&nbsp;<%= product.price %></h6>
+                            </div>
+                            
+                           
+                            <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                              <button id="removeButton" onclick="deleteAddress('<%=product._id%>')"> <a href="" class="text-muted">
+                                <i class="fa fa-trash-o" style="font-size:36px;color:red" ></i></a></button>
+
+                            </div>		
+                        </div>
+                        <%})%>
+                        <%}else{%>
+
+                  
+                 <span>No Cart items?</span>
+                  <%}%>
+                  <hr class="my-4">
+
+
+
+
+
+                  <div class="pt-5">
+                    <h6 class="mb-0"><a href="/user" class="text-body"><i
+                          class="fas fa-long-arrow-alt-left me-2"></i></a></h6>
+                  </div>
+              </div>
+            </div>
+            <div class="col-lg-4 bg-grey">
+              <div class="p-5">
+                <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between mb-4">
+                    <h5 class="text-uppercase">items <%= length %></h5>
+        <h3 id="subtotal" class="fw-normal"><%= subtotal %></h3>
+        <h5></h5>
+      </div>
+
+      <h5 class="text-uppercase mb-3">Shipping</h5>
+
+
+
+  <hr class="my-4">
+
+                    <div class="d-flex justify-content-between mb-5">
+                    <h5 class="text-uppercase">Total price</h5>
+                    <h2 id="sub" class="fw-normal"><%= subtotal %></h2>
+                </div>
+                <% if (!subtotal) { %>
+                <button type="button" class="btn btn-success btn-lg btn-block disabled ">
+                  Checkout
+                </button>
+                <% } else { %>
+                <button type="submit"class="btn bg-success apply-coupon">
+                  Checkout
+                </button>
+                </form>
+                <% } %>          
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+  
+    <!-- Shoping Cart Section End -->
+
+    <!-- Footer Section Begin -->
+    
+    <!-- Footer Section End -->
+
+    <!-- Js Plugins -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.nice-select.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery.slicknav.js"></script>
+    <script src="js/mixitup.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+    
+
+    <script>
+       
+        function validateData(id, index) {
+            const element = document.getElementById(id)
+            const priceText = document.getElementById('price_text_' + id)
+            const price = document.getElementById('actual_price_' + id)
+            const subtotal = document.getElementById('subtotal')
+            const sub = document.getElementById('sub')
+            if (Number(element.value) > Number(element.max))
+              element.value = element.max
+            const rate = priceText.innerHTML
+            priceText.innerHTML = Number(price.innerHTML) * Number(element.value)
+            const diff = Number(priceText.innerHTML) - Number(rate)
+            subtotal.innerHTML = Number(diff) + Number(subtotal.innerHTML),
+              sub.innerHTML = Number(diff) + Number(sub.innerHTML)
+        
+        
+        
+          }
+         
+          async function proceedTocheckout() {
+            const quantity = Object.values(document.getElementsByName('quantity')).map((cartProduct) => (
+              {
+                cartProductid: cartProduct.id,
+                quantity: cartProduct.value
+              }
+            ))
+            for(var i=0;i<quantity.length;i++){
+              var quantitys=[i]=quantity;
+            }
+        
+            let response = await fetch('/checkoutpage', {
+              method: 'post',
+              headers: { 'Content-Type': 'application/json', },
+              body: JSON.stringify(quantitys)
+            });
+
+            
+
+            
+
+            let responses = await fetch('/checkout-addadress', {
+              method: 'post',
+              headers: { 'Content-Type': 'application/json', },
+              body: JSON.stringify(quantitys)
+            });
+        
+          }
+        
+        
+        </script>
+        <script>
+         async function  updatequantity(productId ,count){
+          const quantityEls = document.getElementsByName('quantity');
+const quantities = Array.from(quantityEls).map(el => el.value);
+           
+          console.log("quantity checking"+count )
+            
+            let responses = await fetch('/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', },
+              body: JSON.stringify({
+               
+                quantityss:count,
+                productId:productId
+            })
+            })
+           
+           
+        .catch(error => console.error(error))
+           console.log("testing cart quantity came"+productId+"quntity"+quantityss)
+
+          }
+        </script>
+      
+      <script>
+        function deleteAddress(addressId){
+          console.log(addressId);
+          fetch('/removeproduct',{
+            method: 'POST',
+            headers:{
+              'Content-Type' : 'application/json'            
+            },
+            body: JSON.stringify({
+              addressId:addressId
+            })
+          })
+  
+          .then((res) => res.json())
+          .then((res) => window.location.reload())
+          .catch(error => console.error(error))
+        }
+      </script>
+      
+    </body>
+
+</html>
