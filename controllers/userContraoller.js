@@ -263,14 +263,14 @@ const loadotp = async (req, res) => {
     email = req.body.email;
     moobile = req.body.mobile;
     paassword = req.body.password;
-    //const mobileNumber = req.body.mobile;
-    console.log(otp);
-    const message = await client.messages.create({
-      body: `Organi verification : Your OTP is ${otp} , Dont share your otp`,
-      from: "+12765660289",
-      to: "+917736408809",
-    });
-    //   res.send('OTP sent successfully');
+    const mobileNumber = req.body.mobile;
+    
+    // const message = await client.messages.create({
+    //   body: `Organi verification : Your OTP is ${otp} , Dont share your otp`,
+    //   from: "+12765660289",
+    //   to: "+917736408809",
+    // });
+    //  res.send('OTP sent successfully');
     res.render("otp");
   } catch (error) {
     res.status(500).send("Error sending OTP");
