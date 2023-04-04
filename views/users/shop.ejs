@@ -39,7 +39,7 @@
                     <nav class="header__menu">
                         <ul>
                             <li><a href="/home">Home</a></li>
-                            <li class="/shop"><a href="./shop-grid.html">Shop</a></li>
+                            <li class="/shop"><a href="/shop">Shop</a></li>
 
                             <li><a href="./blog.html">Blog</a></li>
                             <li><a href="./contact.html">Contact</a></li>
@@ -52,7 +52,7 @@
                             <li><a href="/wishlist"><i class="fa fa-heart"></i></a></li>
                             <li><a href="/cart"><i class="fa fa-shopping-bag"></i> </a></li>
                         </ul>
-                        <div class="header__cart__price">item: <span>Rs 150.00</span></div>
+                      
                     </div>
                 </div>
             </div>
@@ -121,7 +121,7 @@
                     <div class="breadcrumb__text">
                         <h2>Organi Shop</h2>
                         <div class="breadcrumb__option">
-                            <a href="./index.html">Home</a>
+                            <a href="/home">Home</a>
                             <span>Shop</span>
                         </div>
                     </div>
@@ -140,12 +140,27 @@
                     
                     <div class="filter__item">
                         <div class="row">
-                            <div class="col-lg-4 col-md-5">
-                                <div class="filter__sort">
-                                  
+
+
+                            <div class="col-lg-3">
+                    
+                                <div class="hero__categories">
+                                    <div class="hero__categories__all">
+                                        <i class="fa fa-bars"></i>
+                                        <span>All CATEGORY</span>
+                                    </div>
+                                    
+                                    <ul>
+                                       
+                                        <li><a href="/shop?name=priceLowToHigh">Price: Low to High</a></li>
+                                        <li><a href="/shop?name=priceHighToLow">Price: High to Low</a></li>
+                                        
+                                       
+                                    </ul>
                                    
                                 </div>
                             </div>
+                        
                             <div class="col-lg-4 col-md-4">
                                 <div class="filter__found">
                                     <h6><span><%=products.length %></span> Products found</h6>
@@ -169,7 +184,12 @@
                                     <ul class="product__item__pic__hover">
                                         <li><a  onclick="addtowishlist('<%= products[i]._id %>')"  ><i class="fa fa-heart"></i></a></li>
                                         <li><a href="/details?id=<%= products[i]._id%>"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a onclick=" addtocart('<%= products[i]._id %>')" ><i class="fa fa-shopping-cart"></i></a></li>
+                                       <% if(products[i].stock == 0){%>
+                                        <li><a onclick=" addtocartalert()" ><i class="fa fa-shopping-cart"></i></a></li>
+                                      <% }else{%>
+                                            <li><a onclick=" addtocart('<%= products[i]._id %>')" ><i class="fa fa-shopping-cart"></i></a></li>
+                                      <% }%>
+                                       
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
@@ -326,6 +346,20 @@
           }
     }
 </script>
+<script>
+    async function  addtocartalert(){
+        Swal.fire({
+              title: "Something went wrong",
+              text: "Sorry Stock is not available.",
+
+              icon: "failure",
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "OK",
+              timer: 3000
+        })
+    }
+</script>
 
 <script>
     async function addtocart(productId){
@@ -373,22 +407,25 @@
     
 </script>
 <script>
-    const sortForm = document.getElementById('sort-form');
-    console.log(sortForm);
-  
-    if (sortForm) {
-      const sortBySelect = sortForm.querySelector('[name="sortBy"]');
-      console.log(sortBySelect);
-  
-      if (sortBySelect) {
-        sortBySelect.addEventListener('change', function() {
-          sortForm.submit();
-        });
+    const sort = async (name) => {
+      console.log("Sorting by: " + name);
+      try {
+        const response = await fetch("/shop", {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(
+                {
+                   name:name
+                }
+                )
+            })
+      } catch (error) {
+        console.log(error);
       }
     }
   </script>
-  
-  
 
 
 </body>

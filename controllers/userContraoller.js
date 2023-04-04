@@ -29,7 +29,7 @@ const address = require("../models/address");
 
 var saavedOtp;
 var naame;
-var email;
+var emaill;
 var moobile;
 var paassword;
 
@@ -38,6 +38,7 @@ function generateOTP() {
   for (let i = 0; i < 6; i++) {
     otp += Math.floor(Math.random() * 10);
   }
+
   return otp;
 }
 
@@ -179,15 +180,16 @@ const loadshop = async (req, res) => {
 
     const limit = 6;
 
-    let sort = { price: -1 }; // Default sorting
-    if (req.query.sortBy) {
-      const sortBy = req.query.sortBy;
+    let sort = { }; // Default sorting
+    if (req.query.name) {
+      const sortBy = req.query.name;
       switch (sortBy) {
         case "priceLowToHigh":
+          console.log("price low to high")
           sort = { price: -1 };
           break;
         case "priceHighToLow":
-          sort = { price: -1 };
+          sort = { price: 1 };
           break;
         default:
           sort = { price: -1 };
@@ -218,22 +220,33 @@ const loadshop = async (req, res) => {
     const count = await Product.find({ $and: [filter, searchQuery] }).countDocuments();
 
     const categoryData = await Category.find();
-    res.render("shop", {
-      products: productData,
-      category: categoryData,
-      userData: userData,
-      length,
-      totalpage: Math.ceil(count / limit),
-      currentpage: page,
-      category_id: id, // Pass the category ID to the view
-      sortBy: req.query.sortBy || "priceLowToHigh", // Pass the selected sort option to the view
-      search: req.query.search || '' // Pass the search query to the view
-    });
+
+    if (req.xhr) { // Check if the request is an AJAX request
+      res.json({ // Send the JSON data to the client
+        products: productData,
+        totalpage: Math.ceil(count / limit),
+        currentpage: page,
+        sortBy: req.query.sortBy || "priceLowToHigh", // Pass the selected sort option to the view
+        search: req.query.search || '' // Pass the search query to the view
+      });
+    } else {
+      // Render the HTML page normally for non-AJAX requests
+      res.render("shop", {
+        products: productData,
+        category: categoryData,
+        userData: userData,
+        length,
+        totalpage: Math.ceil(count / limit),
+        currentpage: page,
+        category_id: id, // Pass the category ID to the view
+        sortBy: req.query.sortBy || "priceLowToHigh", // Pass the selected sort option to the view
+        search: req.query.search || '' // Pass the search query to the view
+      });
+    }
   } catch (error) {
     console.log(error.message);
   }
 };
-
 
 
 
@@ -258,21 +271,33 @@ const loadproductdetails = async (req, res) => {
 const loadotp = async (req, res) => {
   try {
     const otp = generateOTP();
-    saavedOtp = otp;
+    console.log(otp);
+    req.session.otp = otp; // Store OTP in session
     naame = req.body.name;
-    email = req.body.email;
+    emaill = req.body.email;
     moobile = req.body.mobile;
-    paassword = req.body.password;
-    const mobileNumber = req.body.mobile;
-    
-    // const message = await client.messages.create({
-    //   body: `Organi verification : Your OTP is ${otp} , Dont share your otp`,
-    //   from: "+12765660289",
-    //   to: "+917736408809",
-    // });
-    //  res.send('OTP sent successfully');
+     paassword = req.body.password;
+   
+
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: config.emailUser,
+        pass: config.emailPassword,
+      },
+    });
+    const mailOptions = {
+      from: config.emailUser,
+      to: emaill,
+      subject: "OTP for Sign In",
+      text: `Your OTP is ${otp}. Please don't share it with anyone.`,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email has been sent: ", info.response);
     res.render("otp");
   } catch (error) {
+    console.log(error.message);
     res.status(500).send("Error sending OTP");
   }
 };
@@ -280,33 +305,30 @@ const loadotp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   const otp = req.body.otp;
   const storedOtp = req.session.otp;
-  console.log("i aam here");
-  if (otp == saavedOtp) {
-    console.log("otp checked");
-    // Register the user and store their details
-    // Notify the user that their registration is successful
-    //   const insertUser=async(req,res)=>{
-    //     try{
-    const password = await securePassword(paassword);
-    const user = new User({
-      name: naame,
-      email: email,
-      mobile: moobile,
-      password: password,
-      blockStatus: false,
-      // salt:"someRandomSaltValue",
-      is_admin: 0,
-    });
-    console.log(email);
-    userEmail = await User.findOne({ email: email });
+  console.log("i am here");
+  if (otp == storedOtp) {
+    console.log("OTP verified");
+    const name = naame;
+    const email = emaill;
+    const mobile = moobile;
+    const password = paassword;
+
+    const userEmail = await User.findOne({ email: email });
     if (!userEmail) {
-      const userData = user.save();
-      console.log("its working");
+      const hashedPassword = await securePassword(password);
+      const user = new User({
+        name,
+        email,
+        mobile,
+        password: hashedPassword,
+        blockStatus: false,
+        is_admin: 0,
+      });
+      const userData = await user.save();
       console.log(userData);
       if (userData) {
         res.render("login", {
-          message:
-            "Your registration has been successful,Please verify your mail..",
+          message: "Your registration has been successful,Please verify your mail..",
         });
       } else {
         res.render("signup", { message: "Your registration has been failed" });
@@ -315,14 +337,13 @@ const verifyOtp = async (req, res) => {
       res.render("signup", { message: "Entered Email is already Exists" });
     }
   } else {
-    // res.status(401).send('Invalid OTP');
-    res.render("otp", { error: "Invalid OTP" });
+    res.render("otp", { error: "Invalid OTP", name, email, mobile, password });
   }
 };
 
 const secondlogin = async (req, res) => {
   try {
-    res.render("useslogin");
+    res.render("userlogin");
   } catch (error) {
     console.log(error.message);
   }
@@ -569,7 +590,7 @@ const loadcart = async (req, res) => {
       {
         $lookup: {
           from: "products",
-          let: { cartItems: "$cart" },
+          let: { cartItems: { $ifNull: ["$cart", []] } },
           pipeline: [
             { $match: { $expr: { $in: ["$_id", "$$cartItems.productId"] } } },
             {
@@ -635,8 +656,10 @@ const postcart = async (req, res) => {
     const userId = req.session.user_id;
     const productId = req.body.productId;
     const quantity = parseInt(req.body.quantityss);
-    console.log("cart items are matching111111111");
-
+     
+      const stocks=await Product.findOne({_id:productId})
+     
+console.log("stock checking"+stocks.stock)
     const user = await User.findById(userId);
     if (!user) {
       throw new Error('User not found');
@@ -647,13 +670,15 @@ const postcart = async (req, res) => {
     if (!cartItem) {
       throw new Error('Product not found in cart');
     }
-
+     
     const currentQuantity = parseInt(cartItem.quantity);
-    const newQuantity = currentQuantity + quantity;
-    if (newQuantity < 0) {
+      
+      const newQuantity = currentQuantity + quantity;
+    
+    if (newQuantity < 1) {
       throw new Error('Quantity cannot be negative');
     }
-
+    if(stocks.stock>=newQuantity){
     const updateResult = await User.updateOne(
       {
         _id: userId,
@@ -665,6 +690,7 @@ const postcart = async (req, res) => {
         },
       }
     );
+    }
 
     if (updateResult.nModified === 0) {
       throw new Error('Update failed');
@@ -881,9 +907,12 @@ try{
 
 const loadeditaddresscheckoutpage=async(req,res)=>{
   try{
+ 
     id=req.query.id;
-  
-    res.render("edit-address-checkout",{})
+    const userAddress = await User.findOne({Address:{$elemMatch:{_id:id}}},{"Address.$":1,_id:0});
+    
+  console.log("edite address cheching"+userAddress)
+    res.render("edit-address-checkout",{address:userAddress})
 
   }catch(error){
     console.log(error.message);
@@ -1141,6 +1170,11 @@ const coupon = async (req, res, next) => {
 
         }else{
          gtotal=amount;
+         
+        }
+
+        if(total<100){
+res.render("checkoutpage",{message:"please buy more than"})
         }
         
         console.log("after coupon" + gtotal);
@@ -1184,8 +1218,8 @@ const addtowishlist = async (req, res) => {
   }
 };
 
-const loadwishlist=async(req,res)=>{
-  try{
+const loadwishlist = async (req, res) => {
+  try {
     const userData = req.session.user_id;
 
     const wishlistData = await User.aggregate([
@@ -1193,50 +1227,33 @@ const loadwishlist=async(req,res)=>{
       {
         $lookup: {
           from: "products",
-          let: { wishlistItems: "$wishlist" },
-          pipeline: [
-            { $match: { $expr: { $in: ["$_id", "$$wishlistItems.productId"] } } },
-          ],
+          localField: "wishlist.productId",
+          foreignField: "_id",
           as: "productcartData",
         },
       },
     ]);
-   
-    const productDat = await Product.aggregate([
-      {
-        $lookup: {
-          from: "categories",
-          localField: "category",
-          foreignField: "_id",
-          as: "products",
-        },
-      },
-    ]);
-    console.log("second reached");
 
-    const wishlistProducts = wishlistData[0].productcartData;
-   
-    let subtotal = 0;
-    wishlistProducts.forEach((wishlistProduct) => {
-      subtotal = subtotal + Number(wishlistProduct.price);
-    });
-
+    const wishlistProducts = wishlistData[0]?.productcartData || [];
+    const subtotal = wishlistProducts.reduce(
+      (acc, wishlistProduct) => acc + Number(wishlistProduct.price),
+      0
+    );
     const length = wishlistProducts.length;
-    const cartlenght = req.session.length;
-    console.log(subtotal);
-    console.log(length);
-
+    const cartlength = req.session.length;
     
-    res.render("wishlist",{
+    res.render("wishlist", {
       wishlistProducts,
       subtotal,
       length,
-    })
-
-  }catch(error){
-    console.log(error.message);
+      cartlength,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
   }
-}
+};
+
 
 const removeproductinwishlist=async(req,res)=>{
   try{
@@ -1263,7 +1280,7 @@ const removeproductinwishlist=async(req,res)=>{
 
 const addtocartinwishlist = async (req, res) => {
   try {
-    const abc = req.query.id;
+    const abc = req.body.productId;
     const cartData = await User.updateOne(
       {
         _id: req.session.user_id,
@@ -1276,6 +1293,7 @@ const addtocartinwishlist = async (req, res) => {
         },
       }
     );
+
 
     if(cartData){
       const result = await User.findByIdAndUpdate({
@@ -1290,7 +1308,11 @@ const addtocartinwishlist = async (req, res) => {
 
     }
 
-    res.redirect("/wishlist");
+    res.json({
+      res: "success"
+    
+    });
+   
   } catch (error) {
     console.log(error.message);
   }

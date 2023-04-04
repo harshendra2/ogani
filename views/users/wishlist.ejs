@@ -66,11 +66,11 @@
 
 
 
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        <% if (length) { %>
+    <div class="container">
+      <% if (length) { %>
+        <div class="row">
           <% wishlistProducts.forEach(function(product,index) { %>
-            <div class="col">
+            <div class="col-lg-3 col-md-4 col-sm-6">
               <div class="card h-100">
                 <img src="/images/<%= product.img1[0] %>" class="card-img-top" alt="...">
                 <div class="card-body">
@@ -79,36 +79,44 @@
                   <h6 class="card-title">Price: <%= product.price %></h6>
                   <% if(product.stock ==0){%>
                     <b><p class="card-text" style="color: red;">No stock available</p></b>
-                 <% }else{%>
-                  <b><p class="card-text">Stock: <%= product.stock %></p></b>
-                 <%}%>
-                  
+                  <% }else{%>
+                    <b><p class="card-text">Stock: <%= product.stock %></p></b>
+                  <%}%>
                   <div class="product__details__rating">
-                    <% for(let j=0;j < product. rating; j++){%>
-                    <i class="fa fa-star" style="color: orange;"></i>
+                    <% for(let j=0;j < product.rating; j++){%>
+                      <i class="fa fa-star" style="color: orange;"></i>
                     <%}%>
                     <span style="color: red;">(<%= product.numReviews %> reviews)</span>
                   </div>
                   <% if(product.stock ==0){%>
-                    <a href="/addtocart-in-wishlist?id=<%= product._id %>"   class="btn btn-danger">Delete</a>
-                 <% }else{%>
-                  <a href="/addtocart-in-wishlist?id=<%= product._id %>"   class="btn btn-success">Add to Cart</a>
-                  <a  onclick=" removeWishlist('<%= product._id %>')"   class="btn btn-danger">Delete</a>
-                 <%}%>
-                  
-                 
+                    <a href="/addtocart-in-wishlist?id=<%= product._id %>" class="btn btn-danger">Delete</a>
+                  <% }else{%>
+                    <a onclick=" addtocart('<%= product._id %>')" class="btn btn-success">Add to Cart</a>
+                    <a onclick="removeWishlist('<%= product._id %>')" class="btn btn-danger">Delete</a>
+                  <%}%>
                 </div>
               </div>
             </div>
+            
+            <% if ((index+1) % 4 == 0) {%>
+              
+              <div class="clearfix visible-sm-block"></div>
+              <div class="clearfix visible-md-block"></div>
+              <div class="clearfix visible-lg-block"></div>
+            <% } %>
           <%})%>
-        <%}else{%>
+        </div>
+       
+      <%}else{%>
+        <div class="row">
           <div class="col-sm-12">
             <span>No Wishlist items?</span>
           </div>
-        <%}%>
-      </div>
-</div>
-
+        </div>
+      <%}%>
+    </div>
+    
+    
 <br>
 <br>
 <br>
@@ -194,7 +202,54 @@
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
 
-
+    <script>
+      async function addtocart(productId){
+        
+          let orderplacement = await fetch("/addtocart-in-wishlist", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(
+                  {
+                      productId:productId  
+                  }
+                  ),
+            });
+            let result = await orderplacement.json()
+            
+            if (result.res === "success") {
+              Swal.fire({
+                title: "Success",
+                text: "Item added successfully !",
+                icon: "success",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "OK",
+                timer: 3000,
+              }).then(() => {
+              // Reload the page after the success message is shown
+              location.reload();
+            });
+            } else {
+              Swal.fire({
+                title: "Something went wrong",
+                text: "something went wrong !",
+  
+                icon: "failure",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "OK",
+                timer: 3000,
+              }).then((res) => {
+                window.location.href = "/shop";
+              });
+            }
+            
+            
+            }
+      
+  </script>
     
       
     <script>

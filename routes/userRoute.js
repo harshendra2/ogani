@@ -63,7 +63,7 @@ user_route.get('/',userController.loadhome)
  user_route.get("/addaddress",auth.isLogin,userController.loadaddaddress)
  user_route.post("/addaddress",auth.isLogin,userController.postaddaddress)
  user_route.post("/addtocart",auth.isLogin,userController.addtocart)
- user_route.get("/addtocart-in-wishlist",auth.isLogin,userController.addtocartinwishlist)
+ user_route.post("/addtocart-in-wishlist",auth.isLogin,userController.addtocartinwishlist)
  user_route.get("/cart",auth.isLogin,userController.loadcart);
  user_route.post("/cart",auth.isLogin,userController.postcart);
  
