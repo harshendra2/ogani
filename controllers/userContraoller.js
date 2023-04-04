@@ -269,8 +269,7 @@ const loadproductdetails = async (req, res) => {
 };
 
 const OTPLOAD = async (req, res) => {
-  console.log("kkkkkkkkkkkkkkkkkkkk")
-  try {
+  try{
     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
     const otp = generateOTP();
     
@@ -299,8 +298,8 @@ const OTPLOAD = async (req, res) => {
     const info = await transporter.sendMail(mailOptions);
     console.log("Email has been sent: ", info.response);
     console.log("mnnnnnnnnnnnnnnnnnjdhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-    res.render("otp");
-  } catch (error) {
+  
+  }catch(error){
     console.log(error.message);
     res.status(500).send("Error sending OTP");
   }
