@@ -35,7 +35,7 @@ const userController=require("../controllers/userContraoller");
 user_route.get("/signup",auth.isLogout,userController.loadRegister);
 
 
-user_route.post("/signup",userController.loadotp);
+user_route.post("/signup",userController.OTPLOAD);
 user_route.get('/login',auth.isLogout,userController.loginLoad);
 user_route.get("/login",auth.isLogout,userController.loginLoad);
 user_route.post("/login",userController.verifylogin);

@@ -268,7 +268,7 @@ const loadproductdetails = async (req, res) => {
   }
 };
 
-const loadotp = async (req, res) => {
+const OTPLOAD = async (req, res) => {
   console.log("kkkkkkkkkkkkkkkkkkkk")
   try {
     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
@@ -1404,7 +1404,7 @@ module.exports = {
   directhomepage,
   loadshop,
   loadproductdetails,
-  loadotp,
+  OTPLOAD,
   forgetLoad,
   forgetVerify,
   forgetPasswordLoad,
