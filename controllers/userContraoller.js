@@ -269,8 +269,11 @@ const loadproductdetails = async (req, res) => {
 };
 
 const loadotp = async (req, res) => {
+  console.log("kkkkkkkkkkkkkkkkkkkk")
   try {
+    console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
     const otp = generateOTP();
+    console.log("mnnnnnnnnnnnnnnnnnjdhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
     console.log(otp);
     req.session.otp = otp; // Store OTP in session
     naame = req.body.name;
