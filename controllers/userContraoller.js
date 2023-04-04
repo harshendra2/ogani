@@ -273,7 +273,7 @@ const loadotp = async (req, res) => {
   try {
     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
     const otp = generateOTP();
-    console.log("mnnnnnnnnnnnnnnnnnjdhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+    
     console.log(otp);
     req.session.otp = otp; // Store OTP in session
     naame = req.body.name;
@@ -298,6 +298,7 @@ const loadotp = async (req, res) => {
     };
     const info = await transporter.sendMail(mailOptions);
     console.log("Email has been sent: ", info.response);
+    console.log("mnnnnnnnnnnnnnnnnnjdhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
     res.render("otp");
   } catch (error) {
     console.log(error.message);
