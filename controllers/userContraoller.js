@@ -298,7 +298,7 @@ const OTPLOAD = async (req, res) => {
     const info = await transporter.sendMail(mailOptions);
     console.log("Email has been sent: ", info.response);
     console.log("mnnnnnnnnnnnnnnnnnjdhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-  
+  res.render("otp")
   }catch(error){
     console.log(error.message);
     res.status(500).send("Error sending OTP");
