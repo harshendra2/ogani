@@ -28,8 +28,7 @@
                             <li><a href="/home">Home</a></li>
                             <li class="active"><a href="/shop">Shop</a></li>
                            
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contact</a></li>
+                           
                         </ul>
                     </nav>
                 </div>
@@ -37,7 +36,7 @@
                     <div class="header__cart">
                         <ul>
                             <li><a href="/wishlist"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span><%=length %></span></a></li>
+                            <li><a href="/cart"><i class="fa fa-shopping-bag"></i> </a></li>
                         </ul>
                         
                     </div>
@@ -111,7 +110,7 @@
     name="quantity" pattern="<%= product._id %>" max="<%= product.stock %>" value="<%= product.quantity %>"
     onchange="validateData('<%=product._id %>')" readonly />
 
-                                <span id="price_text_<%= product._id %>" hidden=""><%= product.price %> </span>
+                               <span id="price_text_<%= product._id %>" hidden=""><%= product.price %> </span>
                               </div>
                               &nbsp;&nbsp;
                                <!-- plus button  -->
@@ -121,7 +120,7 @@
                               <div class="form-outline">
                                 <div class="fs-lg text-accent pt-2 price">
                                   <div id="get">
-                                    <p id="actual_price_<%= product._id %>" hidden=""><%= product.price %></p>
+                                    <br><p id="actual_price_<%= product._id %>" hidden=""><%= product.price %></p>
                                    
                                   </div>
                                 </div>
@@ -129,14 +128,13 @@
                             </div>
                             <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
       
-                              <h6 class="mb-0">&nbsp;&nbsp;<%= product.price %></h6>
+                            <h6 class="mb-0">&nbsp;&nbsp;Rs.<%= product.price %></h6>
                             </div>
                             
                            
                             <div class="col-md-1 col-lg-1 col-xl-1 text-end">
-                              <button id="removeButton" onclick="deleteAddress('<%=product._id%>')"> <a href="" class="text-muted">
-                                <i class="fa fa-trash-o" style="font-size:36px;color:red" ></i></a></button>
-
+                            
+                                <a onclick="deleteproduct('<%= product._id %>')" class="btn btn-danger">Delete</a>
                             </div>		
                         </div>
                         <%})%>
@@ -217,7 +215,7 @@
 
     <script>
        
-        function validateData(id, index) {
+       function validateData(id, index) {
             const element = document.getElementById(id)
             const priceText = document.getElementById('price_text_' + id)
             const price = document.getElementById('actual_price_' + id)
@@ -247,7 +245,7 @@
             }
         
             let response = await fetch('/checkoutpage', {
-              method: 'post',
+              method: 'POST',
               headers: { 'Content-Type': 'application/json', },
               body: JSON.stringify(quantitys)
             });
@@ -290,23 +288,63 @@ const quantities = Array.from(quantityEls).map(el => el.value);
           }
         </script>
       
+      
       <script>
-        function deleteAddress(addressId){
-          console.log(addressId);
-          fetch('/removeproduct',{
-            method: 'POST',
-            headers:{
-              'Content-Type' : 'application/json'            
-            },
-            body: JSON.stringify({
-              addressId:addressId
-            })
+        async  function deleteproduct(addressId){
+        Swal.fire({
+      title: 'Are you sure?',
+      text: 'This item will be removed from your cart!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      // If the user confirms the deletion
+      if (result.value) {
+        // Send a POST request to remove the product from the backend
+        fetch('/removeproduct', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            addressId:addressId
           })
-  
-          .then((res) => res.json())
-          .then((res) => window.location.reload())
-          .catch(error => console.error(error))
-        }
+        })
+        .then(response => response.json())
+        .then(result => {
+          console.log(result); // Log the response to the console
+          if (result.res == "success") {
+            // Show a success message using SweetAlert2
+            Swal.fire(
+              'Deleted!',
+              'This item has been removed from your cart.',
+              'success'
+            ).then(() => {
+              // Reload the page after the success message is shown
+              location.reload();
+            });
+          } else {
+            // If there is an error, show an error message using SweetAlert2
+            Swal.fire(
+              'Error',
+              'There was an error removing the item from your cart.',
+              'error'
+            );
+          }
+        })
+        .catch(error => {
+          console.log(error); // Log any errors to the console
+          // Show an error message using SweetAlert2
+          Swal.fire(
+            'Error',
+            'There was an error removing the item from your cart.',
+            'error'
+          );
+        });
+      }
+    })
+  }
       </script>
       
     </body>

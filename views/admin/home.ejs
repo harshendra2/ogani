@@ -553,6 +553,28 @@ const revenueChart = new Chart(ctx, {
   csvLink.click();
 });
 </script>
+<script>
+  
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+
+  endDateInput.addEventListener('input', () => {
+    if (endDateInput.value < startDateInput.value) {
+      endDateInput.setCustomValidity('End date must be after start date.');
+    } else {
+      endDateInput.setCustomValidity('');
+    }
+  });
+
+  startDateInput.addEventListener('input', () => {
+    if (endDateInput.value < startDateInput.value) {
+      endDateInput.setCustomValidity('End date must be after start date.');
+    } else {
+      endDateInput.setCustomValidity('');
+    }
+  });
+
+</script>
 
 
 </body>

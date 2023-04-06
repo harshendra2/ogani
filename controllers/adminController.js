@@ -269,7 +269,11 @@ const addproduct = async (req, res) => {
     req.body.name != "" &&
     req.body.price != "" &&
     req.body.description != "" &&
-    req.body.stock != ""
+    req.body.stock != ""&&
+    req.body.category!=""&&
+    req.body.rating !=""&&
+    req.body.numReviews !=""
+
   ) {
     const productData = new Product({
       productName: req.body.name,
@@ -277,9 +281,6 @@ const addproduct = async (req, res) => {
       description: req.body.description,
       stock: req.body.stock,
       img1: images,
-
-      // img2: req.files[1] && req.files[1].filename ? req.files[1].filename : "",
-      // img3: req.files[2] && req.files[2].filename ? req.files[2].filename : "",
       category: req.body.category,
       rating: req.body.rating,
       numReviews: req.body.numReviews,
@@ -349,10 +350,13 @@ const updateproduct = async (req, res) => {
 
 const deletproducts = async (req, res) => {
   try {
-    const id = req.query.id;
+    const id = req.body.productId;
     console.log(id);
-    await Product.deleteOne({ _id: id });
-    res.redirect("/admin/products");
+    await Product.deleteOne({ _id:id });
+    res.json({
+      res: "success"
+    
+    });
   } catch (error) {
     console.log(error.message);
   }
@@ -429,7 +433,11 @@ const postcategory = async (req, res) => {
       req.session.messager = "";
       res.redirect("/admin/categorylist");
     }
-  } else {
+  }else if(req.body.name == " "||req.body.icon==" "||req.body.color ==" ") {
+    const message = "fields don't be blank";
+    req.session.messager = message;
+    res.redirect(`/admin/add-category?message=${message}`);
+  }else{
     const message = "fields don't be blank";
     req.session.messager = message;
     res.redirect(`/admin/add-category?message=${message}`);
@@ -513,7 +521,10 @@ const loadeditcategory = async (req, res) => {
 const posteditcategory = async (req, res) => {
   try {
     const id = req.query.id;
+   
+   
     console.log("edite user address" + id);
+    if(req.body.name&& req.body.icon&&req.body.color){
     const categoryData = await Category.findByIdAndUpdate(
       { _id: id },
       {
@@ -524,7 +535,20 @@ const posteditcategory = async (req, res) => {
         },
       }
     );
+    if(categoryData){
     res.redirect("/admin/categorylist");
+    }
+    }else if(req.body.name==""||req.body.icon==""||req.body.color==""){
+      const categoryData = await Category.findByIdAndUpdate(
+        { _id: id })
+      res.render("edit-categary",{message:"fields don't be blank",category:categoryData})
+      
+      
+    }else{
+      const categoryData = await Category.findByIdAndUpdate(
+        { _id: id })
+      res.render("edit-categary",{message:"fields don't be blank",category:categoryData})
+    }
   } catch (error) {
     console.log(error.message);
   }
@@ -629,6 +653,21 @@ const insertcoupon = async (req, res) => {
     console.log(error);
   }
 };
+
+const removecoupon=async(req,res)=>{
+  try{
+    
+    const id = req.body.couponId;
+    console.log(id);
+    await Coupon.deleteOne({ _id:id });
+    res.json({
+      res: "success"
+    
+    });
+  }catch(error){
+    console.log(error.message);
+  }
+}
 
 const dashboardData = async (req,res,next) => {
   try {
@@ -915,6 +954,7 @@ module.exports = {
   loadcoupons,
   addCoupon,
   insertcoupon,
+  removecoupon,
   dashboardData,
   salesreport,
   loadBanner,

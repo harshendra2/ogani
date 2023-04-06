@@ -48,7 +48,7 @@ admin_route.post('/deleteProductImage',adminController.deleteProductImage)
 
 
 
-admin_route.get("/delete-product", adminController.deletproducts);
+admin_route.post("/delete-product", adminController.deletproducts);
 admin_route.post("/block_user", auth.isLogin, adminController.blockUseruser);
 admin_route.get("/categorylist",auth.isLogin,adminController.loadcategorylist);
 admin_route.get("/add-category", auth.isLogin, adminController.loadcategory);
@@ -64,6 +64,7 @@ admin_route.get("/change-status", adminController.changestatus);
 admin_route.get("/coupon", adminController.loadcoupons);
 admin_route.get("/add-coupon", adminController.addCoupon);
 admin_route.post("/add-coupon", adminController.insertcoupon);
+admin_route.post("/removecoupon",auth.isLogin,adminController.removecoupon);
 admin_route.get("/admin-dash", adminController.dashboardData);
 admin_route.get("/salesreport",adminController.salesreport)
 

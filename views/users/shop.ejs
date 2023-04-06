@@ -41,8 +41,7 @@
                             <li><a href="/home">Home</a></li>
                             <li class="/shop"><a href="/shop">Shop</a></li>
 
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contact</a></li>
+                          
                         </ul>
                     </nav>
                 </div>
@@ -69,35 +68,49 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3">
-                    
-                    <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>All CATEGORY</span>
+                  <div class="filter-items filter-items-count" id="category-filters">
+                          <% if(categories.length > 0){ %> <% for(let i=0;i<categories.length;i++){ %>
+                              <div class="filter-item">
+                                <div class="custom-control custom-radio ">
+                                  <input type="radio" name="category"  
+                                    value="<%= categories[i]._id %>" 
+                                    id="cat- <%= categories[i]._id %>-radio"
+                                    class="custom-control-input category-radio"
+                                    <%if(categories[i]._id.toString()===categoryId){%>checked<%}%>
+                                    >
+                                  <label class="custom-control-label" for="cat- <%= categories[i]._id %>-radio"> <%= categories[i].name %> </label>
+                                </div>
+                              </div>
+                              <% } %>
+
+                          <% } %>
+                          
+                        </div>
+                        <div class="toolbox-sort">
+                            <div class="toolbox-right">
+                                <div class="toolbox-sort">
+                                  <label for="sortby">Sort by:</label>
+                                  <div class="select-custom">
+                                    <select name="sortby" id="sortby" class="form-control">
+                                        <option value="" selected disabled>Select</option>
+                                        <option value="lowprice">Price Low to High</option>
+                                        <option value="highprice">Price High to Low</option>
+                                      </select>
+                                  </div>
+                                </div>
+                              </div>
                         </div>
                         
-                        <ul>
-                            <% if(category.length > 0){%>                
-                  
-                                <% for(let k=0;k < category.length; k++){%>
-                            <li><a href="/shop?id=<%= category[k]._id %>"><%= category[k].name %></a></li>
-                            <%}%>
-                            <%}%>
-                           
-                        </ul>
-                       
-                    </div>
                 </div>
                
                 
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form">
-                            <form >
-                                
-                                <input type="text" id="search" name="search" placeholder="What do yo u need?">
+                            <form id="search-form" action="/shop" method="GET">
+                                <input type="text" id="search" name="search" placeholder="What do you need?" value="<%= search %>">
                                 <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
+                              </form>
                         </div>
                     </div>
                 </div>
@@ -145,33 +158,22 @@
                             <div class="col-lg-3">
                     
                                 <div class="hero__categories">
-                                    <div class="hero__categories__all">
-                                        <i class="fa fa-bars"></i>
-                                        <span>All CATEGORY</span>
-                                    </div>
-                                    
-                                    <ul>
-                                       
-                                        <li><a href="/shop?name=priceLowToHigh">Price: Low to High</a></li>
-                                        <li><a href="/shop?name=priceHighToLow">Price: High to Low</a></li>
-                                        
-                                       
-                                    </ul>
-                                   
-                                </div>
+                                    <div class="toolbox-right">
+                    
+                  </div>
                             </div>
                         
                             <div class="col-lg-4 col-md-4">
                                 <div class="filter__found">
-                                    <h6><span><%=products.length %></span> Products found</h6>
+                                    <% if(products.length==0){%>
+                                        <h6><span></span> Products Not found</h6>
+                                        <% }else{%>
+                                            <h6><span><%=products.length %></span> Products found</h6>
+                                        <%}%>
+                                   
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-3">
-                                <div class="filter__option">
-                                    <span class="icon_grid-2x2"></span>
-                                    <span class="icon_ul"></span>
-                                </div>
-                            </div>
+                           
                         </div>
                     </div>
                     <div class="row">
@@ -193,7 +195,7 @@
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
-                                    <h6><a href="#"><%= products[i].productName%></a></h6>
+                                    <h6><%= products[i].productName%></h6>
                                     <h5>Rs.<%= products[i].price %></h5>
                                 </div>
                                
@@ -211,91 +213,54 @@
                 </div>
             </div>
         </div>
+        <div class="pagination">
+            <nav aria-label="Page navigation" id="pagination">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item">
+                    <% if (currentPage > 1) { %>
+                      <a class="page-link page-link-prev"
+                      href="/shop?category=<%=categoryId%>&sortBy=<%=sortBy%>&search=<%= search %>&page=<%= previous %>"
+                      aria-label="Previous"
+                      tabindex="-1"
+                      aria-disabled="true">
+                      <span aria-hidden="true"
+                      ><i class="icon-long-arrow-left"></i></span
+                    >Prev</a>
+                    <% } else { %>
+                      <span class="page-link page-link-next" aria-label="Previous" aria-hidden="true">
+                        <i class="icon-long-arrow-left"></i>Prev</span>
+                    <% } %>   </li>
+                  <%for(let i=1;i<=totalPages;i++){%>
+                    <%if(i==currentPage){%>
+                      <li class="page-item active page-link" aria-current="page"><%=i%></li>
+                      <%}else{%>
+                        <li class="page-item active" aria-current="page">
+                          <a class="page-link" href="?category=<%=categoryId%>&sortBy=<%=sortBy%>&search= <%=search%>&page=<%=i%>"><%= i %></a>
+                        </li> 
+                        <%}%>   
+                                       
+                  <%}%><li class="page-item"> 
+                    <% if (currentPage < totalPages) { %>
+                      <a class="page-link page-link-next"
+                      href="/shop?category=<%=categoryId%>&sortBy=<%=sortBy%>&search=<%= search %>&page=<%= next %>"
+                      aria-label="Next">Next
+                      <span aria-hidden="true"
+                      ><i class="icon-long-arrow-right"></i>
+                      </span>
+                    </a>
+                    <% } else { %>
+                      <span class="page-link page-link-next" aria-label="Next" aria-hidden="true">Next 
+                        <i class="icon-long-arrow-right"></i>
+                        </span>
+                    <% } %>   </li>
+                </ul>
+              </nav>
+            </div>
+        
     </section>
-    <div class="pagination">
-        <% if(currentpage > 1){ %>
-          <a class="pagination-link" href="?page=<%= currentpage - 1 %>&id=<%= category_id %>">Previous</a>
-        <% } %>
-        <% for(let j=1;j<=totalpage;j++){ %>
-          <a class="pagination-link <%= currentpage == j ? 'is-current' : '' %>" href="?page=<%= j %>&id=<%= category_id %>"><%= j %></a>
-        <% } %>
-        <% if(currentpage < totalpage){ %>
-          <a class="pagination-link" href="?page=<%= parseInt(currentpage) + 1 %>&id=<%= category_id %>">Next</a>
-        <% } %>
-      </div>
+    
       
-      
-    <!-- Product Section End -->
-
-    <!-- Footer Section Begin -->
-    <footer class="footer spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer__about">
-                        <div class="footer__about__logo">
-                            <a href="./index.html"><img src="img/logo.png" alt=""></a>
-                        </div>
-                        <ul>
-                            <li>Address: 60-49 Road 11378 New York</li>
-                            <li>Phone: +65 11.188.888</li>
-                            <li>Email: hello@colorlib.com</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
-                    <div class="footer__widget">
-                        <h6>Useful Links</h6>
-                        <ul>
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">About Our Shop</a></li>
-                            <li><a href="#">Secure Shopping</a></li>
-                            <li><a href="#">Delivery infomation</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Our Sitemap</a></li>
-                        </ul>
-                        <ul>
-                            <li><a href="#">Who We Are</a></li>
-                            <li><a href="#">Our Services</a></li>
-                            <li><a href="#">Projects</a></li>
-                            <li><a href="#">Contact</a></li>
-                            <li><a href="#">Innovation</a></li>
-                            <li><a href="#">Testimonials</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer__widget">
-                        <h6>Join Our Newsletter Now</h6>
-                        <p>Get E-mail updates about our latest shop and special offers.</p>
-                        <form action="#">
-                            <input type="text" placeholder="Enter your mail">
-                            <button type="submit" class="site-btn">Subscribe</button>
-                        </form>
-                        <div class="footer__widget__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-instagram"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
-                            <a href="#"><i class="fa fa-pinterest"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="footer__copyright">
-                        <div class="footer__copyright__text"><p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p></div>
-                        <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- Footer Section End -->
-
-    <!-- Js Plugins -->
+   
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.nice-select.min.js"></script>
@@ -426,6 +391,60 @@
       }
     }
   </script>
+
+<script>
+  const categoryRadios = document.querySelectorAll('.category-radio');
+  const sortSelect = document.getElementById('sortby');
+  const searchProduct = document.getElementById('search');
+  
+  // Get the current URL and parse the query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentCategoryId = urlParams.get('category') || '';
+  const currentSortValue = urlParams.get('sortBy') || '';
+  const currentSearchValue = urlParams.get('search') || '';
+  
+  categoryRadios.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const categoryId = radio.value;
+      const sortValue = sortSelect.value;
+      const searchValue = searchProduct.value;
+      if (categoryId !== currentCategoryId || sortValue !== currentSortValue || searchValue !== currentSearchValue) {
+        // Only redirect if the values have changed
+        const url = `/shop?category=${categoryId || ''}&sortBy=${sortValue}&search=${searchValue}`;
+        searchProduct.value = ''; // clear search input
+        window.location.href = url;
+      }
+    });
+  });
+
+  sortSelect.addEventListener('change', () => {
+    const categoryId = currentCategoryId;
+    const sortValue = sortSelect.value;
+    const searchValue = searchProduct.value;
+    if (sortValue !== currentSortValue || searchValue !== currentSearchValue) {
+      // Only sort the products if the sort value has changed
+      const productList = document.querySelector('.product-list');
+      const products = Array.from(productList.children);
+      const direction = sortValue === 'lowprice' ? 1 : -1;
+      products.sort((a, b) => {
+        const priceA = Number(a.querySelector('.product-price').textContent);
+        const priceB = Number(b.querySelector('.product-price').textContent);
+        return (priceA - priceB) * direction;
+      });
+      products.forEach((product) => {
+        productList.appendChild(product);
+      });
+      currentSortValue = sortValue;
+    }
+  });
+ 
+const searchInput = document.getElementById('search');
+
+
+  // Add your search code here...
+  searchInput.value = '';
+
+</script>
 
 
 </body>

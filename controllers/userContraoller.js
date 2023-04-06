@@ -162,91 +162,72 @@ const editLoad = async (req, res) => {
 
 const loadshop = async (req, res) => {
   try {
-    const id = req.query.id;
-    let filter = { isDeleted: false };
-    if (id) {
-      filter.category = id;
-    }
-
-    const userData = await User.findById({ _id: req.session.user_id });
-    const cartcount = userData.cart;
-    const length = cartcount.length;
-    console.log("cartcount" + length);
-
-    var page = 1;
+    let search = '';
+    if(req.query.search){
+      search = req.query.search;
+    }    
+    let page = 1;
     if(req.query.page){
       page = req.query.page;
-    }
-
+    } 
+    const categoryId = req.query.category; 
     const limit = 6;
+    const sortBy = req.query.sortBy;
+    let sortQuery = {};
 
-    let sort = { }; // Default sorting
-    if (req.query.name) {
-      const sortBy = req.query.name;
-      switch (sortBy) {
-        case "priceLowToHigh":
-          console.log("price low to high")
-          sort = { price: -1 };
-          break;
-        case "priceHighToLow":
-          sort = { price: 1 };
-          break;
-        default:
-          sort = { price: -1 };
-          break;
+    if(req.query.sortBy){
+      console.log("sort query checking"+req.query.sortBy)
+      if(req.query.sortBy == 'lowprice'){
+        sortQuery = { price: 1 };
+      } else if(req.query.sortBy == 'highprice'){
+        sortQuery = { price: -1 };
       }
     }
-
-    let searchQuery = {};
-    if (req.query.search) {
-      searchQuery = {
-        $or: [
-          { productName: { $regex: `.*${req.query.search}.*`, $options: 'i' } },
-          { description: { $regex: `.*${req.query.search}.*`, $options: 'i' } }
-        ]
-      };
+    let filterQuery = {};
+    if (search) {
+      filterQuery.$or = [{productName: { $regex: search, $options: "i" } }];
+    } else {
+      filterQuery.$or = [];
     }
-    if (id) {
-      searchQuery.category = id;
+    if (categoryId) {
+      filterQuery.category = categoryId;       
+    } else {
+      filterQuery.category = {
+        $nin: await Category.find({ block: true }).distinct('_id'), 
+      }; 
     }
-
-    const productData = await Product.find({ $and: [filter, searchQuery] })
-      .populate('category')
-      .sort(sort)
+   
+    const products = await Product.find(filterQuery)
+      .sort(sortQuery)
+      .limit(limit * 1)
       .skip((page - 1) * limit)
-      .limit(limit)
       .exec();
 
-    const count = await Product.find({ $and: [filter, searchQuery] }).countDocuments();
-
-    const categoryData = await Category.find();
-
-    if (req.xhr) { // Check if the request is an AJAX request
-      res.json({ // Send the JSON data to the client
-        products: productData,
-        totalpage: Math.ceil(count / limit),
-        currentpage: page,
-        sortBy: req.query.sortBy || "priceLowToHigh", // Pass the selected sort option to the view
-        search: req.query.search || '' // Pass the search query to the view
-      });
-    } else {
-      // Render the HTML page normally for non-AJAX requests
-      res.render("shop", {
-        products: productData,
-        category: categoryData,
-        userData: userData,
-        length,
-        totalpage: Math.ceil(count / limit),
-        currentpage: page,
-        category_id: id, // Pass the category ID to the view
-        sortBy: req.query.sortBy || "priceLowToHigh", // Pass the selected sort option to the view
-        search: req.query.search || '' // Pass the search query to the view
-      });
-    }
+    const count = await Product.find(filterQuery).countDocuments();
+    const userData = await User.findById({ _id: req.session.user_id });
+    const categories = await Category.find({block:false});
+    res.render('shop', {
+      categories: categories,
+      userData: userData,
+      sortBy,categoryId,
+      products:products,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      previous: page - 1,
+      next: Number(page) + 1,
+      limit: limit,
+      search: search,
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
+
+
+
+
+
+
 
 
 
@@ -465,7 +446,9 @@ if(userData){
 
 const loadeditaddress = async (req, res) => {
   try {
-    res.render("profileeditaddress");
+    id=req.query.id;
+    const userAddress = await User.findOne({Address:{$elemMatch:{_id:id}}},{"Address.$":1,_id:0});
+    res.render("profileeditaddress",{address:userAddress});
   } catch (error) {
     console.log(error.message);
   }
@@ -720,12 +703,13 @@ const removeCartProduct = async (req, res) => {
       },
     );
 
-    if (result) {
-      res.json({ success: true });
-    }
+    res.json({
+      res: "success"
+    
+    });
   } catch (error) {
     console.log(error.message);
-    res.json({ success: false });
+   
   }
 };
 
@@ -852,6 +836,7 @@ const loadcheckoutpage = async (req, res) => {
 
 const loadaddnewaddresscheckoutpage=async(req,res)=>{
   try{
+    
     res.render("addadresscheckoutpage")
 
   }catch(error){
@@ -1125,8 +1110,6 @@ const cancelOrder = async (req, res) => {
 const loadSingleOrder = async (req, res) => {
   try {
     const orderData = await Order.find({ orderId: req.query.id }).lean();
-    // const pID=orderData[0].product[0].id
-    // console.log(pID,"line 17 orderController")
     res.render("singleorder", { order: orderData }); //pwer:pID
   } catch (error) {
     console.log(error);
@@ -1147,11 +1130,11 @@ const coupon = async (req, res, next) => {
 
     let minamount=100;
     let maxamount=1000;
-
+    let amount;
+    
     if (couponData && couponData.date > moment().format("YYYY-MM-DD")) {
       offerPrice = couponData.percentage;
-      console.log("jhbaksjdjlhbsd");
-
+    
       if (userData) {
         res.json("fail");
       } else {
@@ -1159,13 +1142,13 @@ const coupon = async (req, res, next) => {
 
 
          if(total<=maxamount){
-          const amount = (total * offerPrice) / 100;
+          amount = (total * offerPrice) / 100;
         var gtotal = total - amount;
          
               
 
          }else{
-          const amount = (1000 * offerPrice) / 100;
+          amount = (1000 * offerPrice) / 100;
           var gtotal = total - amount;
         
          }
@@ -1173,12 +1156,10 @@ const coupon = async (req, res, next) => {
 
         }else{
          gtotal=amount;
-         
+         res.json("alert");
         }
 
-        if(total<100){
-res.render("checkoutpage",{message:"please buy more than"})
-        }
+        
         
         console.log("after coupon" + gtotal);
         res.json({ offerPrice: offerPrice,gtotal:gtotal});
