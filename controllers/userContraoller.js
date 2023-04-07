@@ -27,11 +27,11 @@ const { name } = require("ejs");
 const { render } = require("../routes/userRoute");
 const address = require("../models/address");
 
-var saavedOtp;
-var naame;
-var emaill;
-var moobile;
-var paassword;
+let saavedOtp;
+let naame;
+let emaill;
+let moobile;
+let paassword;
 
 function generateOTP() {
   let otp = "";
