@@ -24,8 +24,8 @@ app.use(logger('dev'))
 //app.use("/",userRoute);
 
 //admin router
-const adminRoute= require("./routes/adminRoute");
-app.use("/admin",adminRoute);
+//const adminRoute= require("./routes/adminRoute");
+//app.use("/admin",adminRoute);
 
 app.use((req, res, next) => {
     res.status(404).render('404')
