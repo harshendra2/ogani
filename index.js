@@ -20,8 +20,8 @@ app.set('view engine', 'ejs')
 
 app.use(logger('dev'))
 //for user route
-const userRoute=require("./routes/userRoute")
-app.use("/",userRoute);
+//const userRoute=require("./routes/userRoute")
+//app.use("/",userRoute);
 
 //admin router
 const adminRoute= require("./routes/adminRoute");
