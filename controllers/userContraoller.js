@@ -2,7 +2,7 @@ require("dotenv").config();
 const ObjectId = require("mongodb").ObjectId;
 const PDFDocument = require('pdfkit');
 
-const User = require("../models/usermodel");
+const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Category = require("../models/category");
 
