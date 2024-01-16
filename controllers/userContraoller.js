@@ -16,9 +16,6 @@ const randomstring = require("randomstring");
 const moment = require("moment");
 
 const config = require("../config/config");
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = require("twilio")(accountSid, authToken);
 
 const nodemailer = require("nodemailer");
 
@@ -32,6 +29,7 @@ let naame;
 let emaill;
 let moobile;
 let paassword;
+
 
 function generateOTP() {
   let otp = "";

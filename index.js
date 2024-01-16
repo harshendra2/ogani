@@ -1,7 +1,8 @@
 const mongoose=require("mongoose");
 const logger=require("morgan")
 
-mongoose.connect("mongodb+srv://harshendra:Narayana20Ha@cluster0.misnwgb.mongodb.net/user_management_appu");
+mongoose.connect("mongodb+srv://harsendraraj20:i9ViI7Dd0YqeznKc@cluster0.g4koajz.mongodb.net/?retryWrites=true&w=majority");
+
 
 const express=require("express");
 const app=express();
@@ -30,8 +31,10 @@ app.use((req, res, next) => {
     res.status(404).render('404')
     })
 
+    const port=process.env.PORT||3000;
 
-app.listen(3000,function(){
+
+app.listen(port||3000,function(){
     console.log("server running");
 
-})
+})  

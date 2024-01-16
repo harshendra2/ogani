@@ -8,8 +8,8 @@ const bcrypt = require("bcrypt");
 const { response } = require("../routes/userRoute");
 const ObjectId = require("mongodb").ObjectId;
 const moment = require("moment");
-//const {findById}= require("../models/usermodel")
-//const randomstring =require ('randomstring');
+// const {findById}= require("../models/usermodel")
+// const randomstring =require ('randomstring');
 
 //for send mail
 const addUserMail = async (name, email, password, admin_id) => {
