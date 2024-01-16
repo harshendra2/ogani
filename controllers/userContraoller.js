@@ -9,7 +9,6 @@ const Category = require("../models/category");
 const Order = require("../models/orderModel");
 const Coupon = require("../models/couponmodel");
 const banner = require('../models/bannermodel')
-const ordaraddress = require("../models/address");
 
 
 const randomstring = require("randomstring");

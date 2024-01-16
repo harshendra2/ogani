@@ -1,5 +1,5 @@
 const mongoose=require("mongoose");
-const logger=require("morgan")
+//const logger=require("morgan")
 
 mongoose.connect("mongodb+srv://harsendraraj20:i9ViI7Dd0YqeznKc@cluster0.g4koajz.mongodb.net/?retryWrites=true&w=majority");
 
@@ -18,14 +18,14 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.set('view engine', 'ejs')
 
 
-app.use(logger('dev'))
+//app.use(logger('dev'))
 //for user route
 const userRoute=require("./routes/userRoute")
 app.use("/",userRoute);
 
 //admin router
-//const adminRoute= require("./routes/adminRoute");
-//app.use("/admin",adminRoute);
+const adminRoute= require("./routes/adminRoute");
+app.use("/admin",adminRoute);
 
 app.use((req, res, next) => {
     res.status(404).render('404')
